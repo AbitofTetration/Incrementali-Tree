@@ -46,6 +46,7 @@ addLayer("p", {
                 effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
                     let ret = player[this.layer].points.add(1).log10().add(1)
                     if (hasUpgrade(this.layer, 31)) ret = ret.pow(1.3)
+                    if (hasUpgrade(this.layer, 33)) ret = ret.pow(1.6)
                     return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
@@ -69,6 +70,11 @@ addLayer("p", {
                 description: "Quadruple incrementy gain.",
                 cost: new Decimal(22),
                 unlocked() { return hasUpgrade(this.layer, 31)},
+            },
+            33: {
+                description: "The 4th prestige upgrade is 60% stronger.",
+                cost: new Decimal(45),
+                unlocked() { return hasUpgrade(this.layer, 32)},
             },
         },
         hotkeys: [
