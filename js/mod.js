@@ -31,8 +31,8 @@ function canGenPoints(){
 
 function getIncrementaliEff() {
   let eff = new Decimal(2)
-  if (hasUpgrade(this.layer, 11)) eff = eff.mul(1.1)
-  if (hasUpgrade(this.layer, 12)) eff = eff.mul(1.1)
+  if (hasUpgrade("p", 11)) eff = eff.mul(1.1)
+  if (hasUpgrade("p", 12)) eff = eff.mul(1.1)
   return eff
 }
 
@@ -43,6 +43,9 @@ function getPointGen() {
 
 	let gain = new Decimal(0.01)
   gain = gain.mul(player.points.add(2).log10().add(1).pow(getIncrementaliEff()).sub(1))
+  if (hasUpgrade("p", 13)) gain = gain.mul(2)
+  if (hasUpgrade("p", 21)) gain = gain.mul(upgradeEffect("p", 21))
+  if (hasUpgrade("p", 22)) gain = gain.mul(3)
 	return gain
 }
 

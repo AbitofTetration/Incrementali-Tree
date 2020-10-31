@@ -22,8 +22,8 @@ addLayer("p", {
         },
         row: 0, // Row the layer is in on the tree (0 is the first row)
         upgrades: {
-            rows: 1,
-            cols: 2,
+            rows: 2,
+            cols: 3,
             11: {
                 description: "Incrementali boost is 10% more effective.",
                 cost: new Decimal(1),
@@ -35,9 +35,24 @@ addLayer("p", {
                 unlocked() { return hasUpgrade(this.layer, 11)},
             },
             13: {
-                description: "Incrementali gain is 20% .",
+                description: "Double incrementy gain.",
                 cost: new Decimal(1),
                 unlocked() { return hasUpgrade(this.layer, 12)},
+            },
+            21: {
+                description: "Multiply incrementali gain based on prestige points.",
+                cost: new Decimal(1),
+                unlocked() { return hasUpgrade(this.layer, 13)},
+                effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+                    let ret = player[this.layer].points.add(1).log10().add(1)
+                    return ret;
+                },
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+            },
+            22: {
+                description: "Triple incrementy gain.",
+                cost: new Decimal(2),
+                unlocked() { return hasUpgrade(this.layer, 21)},
             },
         },
         hotkeys: [
