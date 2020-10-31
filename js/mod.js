@@ -2,12 +2,12 @@ let modInfo = {
 	name: "The ??? Tree",
 	id: "mymod",
 	author: "nobody",
-	pointsName: "points",
+	pointsName: "incrementali",
 	discordName: "",
 	discordLink: "",
 	changelogLink: "https://github.com/Acamaeda/The-Modding-Tree/blob/master/changelog.md",
     offlineLimit: 1,  // In hours
-    initialStartPoints: new Decimal (10) // Used for hard resets and new players
+    initialStartPoints: new Decimal (0) // Used for hard resets and new players
 }
 
 // Set your version in num and name
@@ -29,12 +29,20 @@ function canGenPoints(){
 	return true
 }
 
+function getIncrementaliEff() {
+  let eff = new Decimal(2)
+  if (hasUpgrade(this.layer, 11)) eff = eff.mul(1.1)
+  if (hasUpgrade(this.layer, 12)) eff = eff.mul(1.1)
+  return eff
+}
+
 // Calculate points/sec!
 function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
 
-	let gain = new Decimal(1)
+	let gain = new Decimal(0.01)
+  gain = gain.mul(player.points.add(2).log10().add(1).pow(getIncrementaliEff()).sub(1))
 	return gain
 }
 

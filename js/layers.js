@@ -7,9 +7,9 @@ addLayer("p", {
 			points: new Decimal(0),
         }},
         color: "#4BDC13",
-        requires: new Decimal(10), // Can be a function that takes requirement increases into account
+        requires: new Decimal(0.25), // Can be a function that takes requirement increases into account
         resource: "prestige points", // Name of prestige currency
-        baseResource: "points", // Name of resource prestige is based on
+        baseResource: "incrementali", // Name of resource prestige is based on
         baseAmount() {return player.points}, // Get the current amount of baseResource
         type: "normal", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
         exponent: 0.5, // Prestige currency exponent
@@ -21,6 +21,25 @@ addLayer("p", {
             return new Decimal(1)
         },
         row: 0, // Row the layer is in on the tree (0 is the first row)
+        upgrades: {
+            rows: 1,
+            cols: 2,
+            11: {
+                description: "Incrementali boost is 10% more effective.",
+                cost: new Decimal(1),
+                unlocked() { return true},
+            },
+            12: {
+                description: "Incrementali boost is 10% more effective.",
+                cost: new Decimal(1),
+                unlocked() { return hasUpgrade(this.layer, 11)},
+            },
+            13: {
+                description: "Incrementali gain is 20% .",
+                cost: new Decimal(1),
+                unlocked() { return hasUpgrade(this.layer, 12)},
+            },
+        },
         hotkeys: [
             {key: "p", description: "Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
         ],
