@@ -147,19 +147,14 @@ addLayer("q", {
                     return cost.floor()
                 },
                 effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
-                    let eff = {}
-                    if (x.gte(0)) eff.first = Decimal.pow(25, x.pow(1.1))
-                    else eff.first = Decimal.pow(1/25, x.times(-1).pow(1.1))
-                
-                    if (x.gte(0)) eff.second = x.pow(0.8)
-                    else eff.second = x.times(-1).pow(0.8).times(-1)
+                    let eff = Decimal.div(x, 4).add(1).sqrt()
                     return eff;
                 },
                 display() { // Everything else displayed in the buyable button after the title
                     let data = tmp[this.layer].buyables[this.id]
                     return "Cost: " + format(data.cost) + " quarks\n\
                     Amount: " + player[this.layer].buyables[this.id] + "\n\
-                    Adds + " + format(data.effect.first) + " things and multiplies stuff by " + format(data.effect.second)
+                    Boosts the incrementali effect by " + format(data.effect.sub(1).mul(100), 0) + "%"
                 },
                 unlocked() { return player[this.layer].unlocked }, 
                 canAfford() {

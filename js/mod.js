@@ -34,6 +34,7 @@ function getIncrementaliEff() {
   if (hasUpgrade("p", 11)) eff = eff.mul(1.1)
   if (hasUpgrade("p", 12)) eff = eff.mul(1.1)
   if (hasUpgrade("p", 23)) eff = eff.mul(1.15)
+  if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 11))
   return eff
 }
 
@@ -57,6 +58,7 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
+  function() {return `Incrementy boost is ${format(getIncrementaliEff())}`}
 ]
 
 // Determines when the game "ends"
