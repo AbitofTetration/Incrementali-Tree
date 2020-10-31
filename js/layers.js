@@ -82,3 +82,100 @@ addLayer("p", {
         ],
         layerShown(){return true},
 })
+
+addLayer("q", {
+        name: "quark", // This is optional, only used in a few places, If absent it just uses the layer id.
+        symbol: "Q", // This appears on the layer's node. Default is the id with the first letter capitalized
+        position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+        startData() { return {
+            unlocked: true,
+	      		points: new Decimal(0),
+            goals: [new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)
+                   ,new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)
+                   ,new Decimal(0),new Decimal(0),new Decimal(0),new Decimal(0)]
+        }},
+        color: "#00BFBF",
+        requires: new Decimal(0.25), // Can be a function that takes requirement increases into account
+        resource: "quarks", // Name of prestige currency
+        type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+        exponent: 0.5, // Prestige currency exponent
+        row: "side", // Row the layer is in on the tree (0 is the first row)
+        layerShown(){return true},
+
+        bars: {
+            pointsBar: {
+                fillStyle: {'background-color' : "#FFFFFF"},
+                baseStyle: {'background-color' : "#696969"},
+                textStyle: {'color': '#04e050'},
+
+                borderStyle() {return {}},
+                direction: RIGHT,
+                width: 400,
+                height: 40,
+                goal() {
+                    return Decimal.pow(6, player[this.layer].goals[0].pow(1.25).add(2))
+                },
+                progress() {
+                    if (player.points.log(10).div(this.goal().log10()).gt(1)) {
+                      player[this.layer].goals[0] = player[this.layer].goals[0].add(1)
+                      player[this.layer].points = player[this.layer].points.add(1)
+                    }
+                    return (player.points.log(10).div(this.goal().log10())).toNumber()
+                },
+                display() {
+                    return "Next quark at \n"+format(player.points) + " / "+format(this.goal())+" incrementali"
+                },
+                unlocked: true,
+
+            },
+        },
+        buyables: {
+            rows: 1,
+            cols: 12,
+            showRespec: true,
+            respec() { // Optional, reset things and give back your currency. Having this function makes a respec button appear
+                player[this.layer].points = player[this.layer].points.add(player[this.layer].spentOnBuyables) // A built-in thing to keep track of this but only keeps a single value
+                resetBuyables(this.layer)
+                doReset(this.layer, true) // Force a reset
+            },
+            respecText: "Respec Thingies", // Text on Respec button, optional
+            11: {
+                title: "Increment Rune", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gte(25)) x = x.pow(2).div(25)
+                    let cost = Decimal.mul(3, Decimal.pow(1.5, x))
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    let eff = {}
+                    if (x.gte(0)) eff.first = Decimal.pow(25, x.pow(1.1))
+                    else eff.first = Decimal.pow(1/25, x.times(-1).pow(1.1))
+                
+                    if (x.gte(0)) eff.second = x.pow(0.8)
+                    else eff.second = x.times(-1).pow(0.8).times(-1)
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " quarks\n\
+                    Amount: " + player[this.layer].buyables[this.id] + "\n\
+                    Adds + " + format(data.effect.first) + " things and multiplies stuff by " + format(data.effect.second)
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'222px'},
+            },
+        },
+
+    midsection: [
+        ["bar", "pointsBar"]
+    ],
+})
