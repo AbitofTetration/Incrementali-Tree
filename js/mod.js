@@ -58,7 +58,8 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
-  function() {return `Incrementy boost is ${format(getIncrementaliEff())}`}
+  function() {return `Incrementy self-boost is ${format(player.points.add(2).log10().add(1).pow(getIncrementaliEff()).sub(1))}x`},
+  function() {return `Self-boost formula is log10(points+2)^${format(getIncrementaliEff())}`}
 ]
 
 // Determines when the game "ends"
