@@ -49,6 +49,7 @@ function getPointGen() {
   if (hasUpgrade("p", 21)) gain = gain.mul(upgradeEffect("p", 21))
   if (hasUpgrade("p", 22)) gain = gain.mul(3)
   if (hasUpgrade("p", 32)) gain = gain.mul(4)
+  if (player.s.unlocked) gain = gain.mul(layers.s.singularityPowerBoost())
 	return gain
 }
 

@@ -20,7 +20,7 @@ addLayer("q", {
         bars: {
             pointsBar: {
                 fillStyle: {'background-color' : "#FFFFFF"},
-                baseStyle: {'background-color' : "#696969"},
+                baseStyle: {'background-color' : "#333333"},
                 textStyle: {'color': '#04e050'},
 
                 borderStyle() {return {}},
@@ -41,7 +41,32 @@ addLayer("q", {
                     return "Next quark at \n"+format(player.points) + " / "+format(this.goal())+" incrementali"
                 },
                 unlocked: true,
+            },
+            singularityBar: {
+                fillStyle: {'background-color' : "#888888"},
+                baseStyle: {'background-color' : "#333333"},
+                textStyle: {'color': '#04e050'},
 
+                borderStyle() {return {}},
+                direction: RIGHT,
+                width: 400,
+                height: 40,
+                goal() {
+                    return Decimal.pow(2.5, player[this.layer].goals[1].pow(1.125).add(1))
+                },
+                progress() {
+                    if (player.s.power.log(10).div(this.goal().log10()).gt(1)) {
+                      player[this.layer].goals[1] = player[this.layer].goals[1].add(1)
+                      player[this.layer].points = player[this.layer].points.add(1)
+                    }
+                    return (player.s.power.log(10).div(this.goal().log10())).toNumber()
+                },
+                display() {
+                    return "Next quark at \n"+format(player.s.power) + " / "+format(this.goal())+" singularity power"
+                },
+                unlocked() {
+                  return player.s.unlocked
+                },
             },
         },
         buyables: {
@@ -86,6 +111,6 @@ addLayer("q", {
         },
 
     midsection: [
-        ["bar", "pointsBar"]
+        ["bar", "pointsBar"], ["bar", "singularityBar"]
     ],
 })
