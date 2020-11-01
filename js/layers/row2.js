@@ -32,7 +32,7 @@ addLayer("s", {
           if (hasUpgrade(this.layer, 12)) eff = eff.mul(upgradeEffect(this.layer, 12))
           if (hasUpgrade(this.layer, 21)) eff = eff.mul(upgradeEffect(this.layer, 21))
           if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 12))
-          //if(eff.gt(1e7)) eff = eff.sqrt().mul()
+          if(eff.gt(1e7)) eff = eff.sqrt().mul(Decimal.sqrt(1e7))
           return eff
         },
         effectDescription() {
@@ -48,10 +48,15 @@ addLayer("s", {
         },
         gainMult() { // Calculate the multiplier for main currency from bonuses
             mult = new Decimal(1)
+            if (player[this.layer].points.gt(26)) mult = mult.div(100)
+            if (player[this.layer].points.gt(30)) mult = mult.div(100)
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
-            return new Decimal(1)
+            let exp = new Decimal(1)
+            if (player[this.layer].points.gt(26)) exp = exp.div(1.25)
+            if (player[this.layer].points.gt(30)) exp = exp.div(1.25)
+            return exp
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
         milestones: {
@@ -223,6 +228,7 @@ addLayer("i", {
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
                     let base = new Decimal(1e10)
                     let mult = Decimal.pow(100,x)
+                    if (mult.gt(1e9)) mult = mult.pow(2).div(1e9)
                     return base.mul(mult)
                 },
                 effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
