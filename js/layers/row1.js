@@ -16,6 +16,7 @@ addLayer("p", {
         gainMult() { // Calculate the multiplier for main currency from bonuses
             mult = new Decimal(1)
             if (hasUpgrade("s", 22)) mult = mult.mul(upgradeEffect("s", 22))
+            if (player.i.unlocked) mult = mult.mul(buyableEffect("i", 12))
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
@@ -94,5 +95,8 @@ addLayer("p", {
         hotkeys: [
             {key: "p", description: "Reset for prestige points", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
         ],
+        update(diff) {
+          if (hasMilestone("s", 1)) generatePoints(this.layer, diff/10)
+        },
         layerShown(){return true},
 })

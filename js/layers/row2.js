@@ -32,6 +32,7 @@ addLayer("s", {
           if (hasUpgrade(this.layer, 12)) eff = eff.mul(upgradeEffect(this.layer, 12))
           if (hasUpgrade(this.layer, 21)) eff = eff.mul(upgradeEffect(this.layer, 21))
           if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 12))
+          //if(eff.gt(1e7)) eff = eff.sqrt().mul()
           return eff
         },
         effectDescription() {
@@ -54,9 +55,14 @@ addLayer("s", {
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
         milestones: {
-            0: {requirementDescription: "6 Singularity Power",
+            0: {requirementDescription: "6 Singularity Levels",
                 done() {return player[this.layer].points.gte(6)}, // Used to determine when to give the milestone
                 effectDescription: "You keep prestige upgrades on reset.",
+            },
+            1: {requirementDescription: "19 Singularity Levels",
+                unlocked() {return player.i.unlocked},
+                done() {return player[this.layer].points.gte(19)}, // Used to determine when to give the milestone
+                effectDescription: "You gain 10% of prestige points on reset per second.",
             },
         },
         upgrades: {
@@ -173,6 +179,73 @@ addLayer("i", {
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
             return new Decimal(1)
+        },
+        buyables: {
+            rows: 1,
+            cols: 12,
+            showRespec: true,
+            respec() { // Optional, reset things and give back your currency. Having this function makes a respec button appear
+                resetBuyables(this.layer)
+                doReset(this.layer, true) // Force a reset
+            },
+            respecText: "Respec Upgrades", // Text on Respec button, optional
+            11: {
+                title: "Increment Upgrade", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let base = new Decimal(1e9)
+                    let mult = Decimal.pow(10,x)
+                    if (mult.gt(1e6)) mult = mult.pow(2).div(1e6)
+                    return base.mul(mult)
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    let eff = Decimal.div(x, 5).add(1).sqrt()
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " incrementali\n\
+                    Amount: " + player[this.layer].buyables[this.id] + "\n\
+                    Boosts the incrementali effect by " + format(data.effect.sub(1).mul(100), 0) + "%"
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+                    return player.points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player.points = player.points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'222px'},
+            },
+            12: {
+                title: "Prestige Upgrade", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    let base = new Decimal(1e10)
+                    let mult = Decimal.pow(100,x)
+                    return base.mul(mult)
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    let eff = Decimal.div(x, 6).add(1).pow(12)
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " incrementali\n\
+                    Amount: " + player[this.layer].buyables[this.id] + "\n\
+                    Multiplies prestige point gain by " + format(data.effect) + "x"
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+                    return player.points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player.points = player.points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'222px'},
+            },
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
         milestones: {

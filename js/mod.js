@@ -37,6 +37,7 @@ function getIncrementaliEff() {
   if (hasUpgrade("s", 11)) eff = eff.mul(1.02)
   if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 11))
   if (player.i.unlocked) eff = eff.mul(layers.i.effect().incrementBuff)
+  if (player.i.unlocked) eff = eff.mul(buyableEffect("i", 11))
   return eff
 }
 
