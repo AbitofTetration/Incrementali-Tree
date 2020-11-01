@@ -34,6 +34,7 @@ function getIncrementaliEff() {
   if (hasUpgrade("p", 11)) eff = eff.mul(1.1)
   if (hasUpgrade("p", 12)) eff = eff.mul(1.1)
   if (hasUpgrade("p", 23)) eff = eff.mul(1.15)
+  if (hasUpgrade("s", 11)) eff = eff.mul(1.02)
   if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 11))
   return eff
 }
@@ -59,8 +60,8 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
-  function() {return `Incrementy self-boost is ${format(player.points.add(2).log10().add(1).pow(getIncrementaliEff()).sub(1))}x`},
-  function() {return `Self-boost formula is log10(points+2)^${format(getIncrementaliEff())}`}
+  function() {return `Incrementali self-boost is ${format(player.points.add(2).log10().add(1).pow(getIncrementaliEff()).sub(1))}x`},
+  function() {return `Self-boost formula is log10(incrementali+2)^${format(getIncrementaliEff())}`}
 ]
 
 // Determines when the game "ends"

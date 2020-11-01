@@ -19,7 +19,7 @@ addLayer("q", {
 
         bars: {
             pointsBar: {
-                fillStyle: {'background-color' : "#FFFFFF"},
+                fillStyle: {'background-color' : "#379911"},
                 baseStyle: {'background-color' : "#333333"},
                 textStyle: {'color': '#04e050'},
 
@@ -45,7 +45,7 @@ addLayer("q", {
             singularityBar: {
                 fillStyle: {'background-color' : "#888888"},
                 baseStyle: {'background-color' : "#333333"},
-                textStyle: {'color': '#04e050'},
+                textStyle: {'color': '#DDDDDD'},
 
                 borderStyle() {return {}},
                 direction: RIGHT,
