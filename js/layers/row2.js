@@ -139,24 +139,33 @@ addLayer("i", {
           unlocked: false,
 			    points: new Decimal(0)
         }},
-        color: "#888888",
+        color: "#bfbf00",
         requires: new Decimal(2e8), // Can be a function that takes requirement increases into account
         resource: "incrementali galaxies", // Name of prestige currency
         baseResource: "incrementali", // Name of resource prestige is based on
         baseAmount() {return player.points}, // Get the current amount of baseResource
         type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-        exponent: 0.5, // Prestige currency exponent
+        exponent: 0.75, // Prestige currency exponent
         base: 10,
         effect() {
           let eff = {
-            incrementMult: new Decimal.pow(2, player[this.layer].points.sqrt()),
-            incrementBuff: new Decimal.pow(1.05, player[this.layer].points.sqrt()).sub(1)
+            incrementMult: new Decimal.pow(5, player[this.layer].points.sqrt()),
+            incrementBuff: new Decimal.pow(1.05, player[this.layer].points.sqrt())
+          }
+            let set = {
+              incrementMult: new Decimal(25),
+              incrementBuff: new Decimal(1.1),
+            }
+          for (var i in eff) {
+            if (eff[i].gt(set[i])) {
+              eff[i] = eff[i].sqrt().mul(set[i].sqrt())
+            }
           }
           return eff
         },
         effectDescription() {
           let eff = this.effect()
-          return "multiplying incrementali gain by "+format(eff.incrementMult)+"x and multiplying the exponent of the self-boost by "+format(eff.incrementBuff)+""
+          return "multiplying incrementali gain by "+format(eff.incrementMult)+"x and increasing the exponent of the self-boost by "+format(eff.incrementBuff.sub(1).mul(100))+"%"
         },
         gainMult() { // Calculate the multiplier for main currency from bonuses
             mult = new Decimal(1)
@@ -167,8 +176,8 @@ addLayer("i", {
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
         milestones: {
-            0: {requirementDescription: "3 Incrementali Galaxies",
-                done() {return player[this.layer].points.gte(3)}, // Used to determine when to give the milestone
+            0: {requirementDescription: "4 Incrementali Galaxies",
+                done() {return player[this.layer].points.gte(4)}, // Used to determine when to give the milestone
                 effectDescription: "You keep prestige upgrades on reset.",
             },
         },

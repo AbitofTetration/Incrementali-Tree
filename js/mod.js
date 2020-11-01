@@ -36,6 +36,7 @@ function getIncrementaliEff() {
   if (hasUpgrade("p", 23)) eff = eff.mul(1.15)
   if (hasUpgrade("s", 11)) eff = eff.mul(1.02)
   if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 11))
+  if (player.i.unlocked) eff = eff.mul(layers.i.effect().incrementBuff)
   return eff
 }
 
@@ -57,6 +58,7 @@ function getPointGen() {
   if (hasUpgrade("p", 22)) gain = gain.mul(3)
   if (hasUpgrade("p", 32)) gain = gain.mul(4)
   if (player.s.unlocked) gain = gain.mul(layers.s.singularityPowerBoost())
+  if (player.i.unlocked) gain = gain.mul(layers.i.effect().incrementMult)
 	return gain
 }
 

@@ -28,6 +28,10 @@ addLayer("p", {
                 layerDataReset(this.layer, ["upgrades"])
                 return
               }
+              if (resettingLayer = "i" && hasMilestone(resettingLayer, 0)) {
+                layerDataReset(this.layer, ["upgrades"])
+                return
+              }
               layerDataReset(this.layer) // This is actually the default behavior
             }
         },
