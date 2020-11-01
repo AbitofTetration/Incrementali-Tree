@@ -53,7 +53,7 @@ addLayer("s", {
         row: 1, // Row the layer is in on the tree (0 is the first row)
         upgrades: {
             rows: 1,
-            cols: 2,
+            cols: 3,
             11: {
                 description: "Incrementali boost is 2% more effective.",
                 cost: new Decimal(5),
@@ -74,6 +74,14 @@ addLayer("s", {
                     return ret;
                 },
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+            },
+            13: {
+                description: "Permanently unlock a Singularity Rune.",
+                cost: new Decimal(500),
+                currencyDisplayName: "singularity power", // Use if using a nonstandard currency
+                currencyLocation() {return player[this.layer]}, // The object in player data that the currency is contained in
+                currencyInternalName: "power", // Use if using a nonstandard currency
+                unlocked() { return hasUpgrade(this.layer, 12)},
             },
         },
         update(diff) {

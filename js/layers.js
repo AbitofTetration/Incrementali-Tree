@@ -108,6 +108,35 @@ addLayer("q", {
                 buyMax() {}, // You'll have to handle this yourself if you want
                 style: {'height':'222px'},
             },
+            12: {
+                title: "Gravity Rune", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gte(5)) x = x.pow(2).div(5)
+                    let cost = Decimal.mul(1, Decimal.pow(1.5, x))
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    let eff = Decimal.div(x, 3).add(1).pow(3)
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " quarks\n\
+                    Amount: " + player[this.layer].buyables[this.id] + "\n\
+                    Multiplies singularity power gain by " + format(data.effect) + "x"
+                },
+                unlocked() { return hasUpgrade("s", 13) }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'222px'},
+            },
         },
 
     midsection: [
