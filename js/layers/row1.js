@@ -22,6 +22,15 @@ addLayer("p", {
             return new Decimal(1)
         },
         row: 0, // Row the layer is in on the tree (0 is the first row)
+        doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
+            if(layers[resettingLayer].row > this.row) {
+              if (resettingLayer = "s" && hasMilestone(resettingLayer, 0)) {
+                layerDataReset(this.layer, ["upgrades"])
+                return
+              }
+              layerDataReset(this.layer) // This is actually the default behavior
+            }
+        },
         upgrades: {
             rows: 3,
             cols: 3,

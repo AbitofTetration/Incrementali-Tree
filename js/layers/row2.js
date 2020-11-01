@@ -53,6 +53,12 @@ addLayer("s", {
             return new Decimal(1)
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
+        milestones: {
+            0: {requirementDescription: "6 Singularity Power",
+                done() {return player[this.layer].points.gte(6)}, // Used to determine when to give the milestone
+                effectDescription: "You keep prestige upgrades on reset.",
+            },
+        },
         upgrades: {
             rows: 2,
             cols: 3,
@@ -122,5 +128,53 @@ addLayer("s", {
             ["display-text", function() {return "You have "+format(player.s.power)+" singularity power, multiplying incrementy gain by "+format(layers.s.singularityPowerBoost())+"x"}],
         ],
         layerShown(){return player.p.points.gt(45) || player.s.unlocked},
+        branches: ["p"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
+})
+
+addLayer("i", {
+        name: "galaxy", // This is optional, only used in a few places, If absent it just uses the layer id.
+        symbol: "I", // This appears on the layer's node. Default is the id with the first letter capitalized
+        position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+        startData() { return {
+          unlocked: false,
+			    points: new Decimal(0)
+        }},
+        color: "#888888",
+        requires: new Decimal(2e8), // Can be a function that takes requirement increases into account
+        resource: "incrementali galaxies", // Name of prestige currency
+        baseResource: "incrementali", // Name of resource prestige is based on
+        baseAmount() {return player.points}, // Get the current amount of baseResource
+        type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+        exponent: 0.5, // Prestige currency exponent
+        base: 10,
+        effect() {
+          let eff = {
+            incrementMult: new Decimal.pow(2, player[this.layer].points.sqrt()),
+            incrementBuff: new Decimal.pow(1.05, player[this.layer].points.sqrt()).sub(1)
+          }
+          return eff
+        },
+        effectDescription() {
+          let eff = this.effect()
+          return "multiplying incrementali gain by "+format(eff.incrementMult)+"x and multiplying the exponent of the self-boost by "+format(eff.incrementBuff)+""
+        },
+        gainMult() { // Calculate the multiplier for main currency from bonuses
+            mult = new Decimal(1)
+            return mult
+        },
+        gainExp() { // Calculate the exponent on main currency from bonuses
+            return new Decimal(1)
+        },
+        row: 1, // Row the layer is in on the tree (0 is the first row)
+        milestones: {
+            0: {requirementDescription: "3 Incrementali Galaxies",
+                done() {return player[this.layer].points.gte(3)}, // Used to determine when to give the milestone
+                effectDescription: "You keep prestige upgrades on reset.",
+            },
+        },
+        hotkeys: [
+            {key: "i", description: "I: Reset for incrementali galaxies", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
+        ],
+        layerShown(){return player.s.points.gt(6) || player.i.unlocked},
         branches: ["p"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
 })
