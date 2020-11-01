@@ -25,8 +25,8 @@ addLayer("s", {
         baseResource: "prestige points", // Name of resource prestige is based on
         baseAmount() {return player.p.points}, // Get the current amount of baseResource
         type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-        exponent: 1.125, // Prestige currency exponent
-        base: 8,
+        exponent: 0.85, // Prestige currency exponent
+        base: 3,
         effect() {
           let eff = Decimal.pow(1.5, player[this.layer].points).sub(1)
           if (hasUpgrade(this.layer, 12)) eff = eff.mul(upgradeEffect(this.layer, 12))

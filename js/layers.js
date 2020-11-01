@@ -31,11 +31,15 @@ addLayer("q", {
                     return Decimal.pow(5, player[this.layer].goals[0].pow(1.25).add(1))
                 },
                 progress() {
-                    if (player.points.add(1).log(10).div(this.goal().log10()).gt(1)) {
-                      player[this.layer].goals[0] = player[this.layer].goals[0].add(1)
-                      player[this.layer].points = player[this.layer].points.add(1)
-                    }
-                    return (player.points.add(1).log(10).div(this.goal().log10())).toNumber()
+                  if (player.points.add(1).log(10).div(this.goal().log10()).gt(1)) {
+                    player[this.layer].goals[0] = player[this.layer].goals[0].add(1)
+                    player[this.layer].points = player[this.layer].points.add(1)
+                  }
+                  if (player.points.add(1).log(10).gt(6) {
+                        return (player.points.add(1).log(10).div(this.goal().log10())).toNumber()
+                  } else {
+              
+                  }
                 },
                 display() {
                     return "Next quark at \n"+format(player.points) + " / "+format(this.goal())+" incrementali"
