@@ -35,10 +35,10 @@ addLayer("q", {
                     player[this.layer].goals[0] = player[this.layer].goals[0].add(1)
                     player[this.layer].points = player[this.layer].points.add(1)
                   }
-                  if (player.points.add(1).log(10).gt(6) {
+                  if (this.goal().log10().gt(9)) {
                         return (player.points.add(1).log(10).div(this.goal().log10())).toNumber()
                   } else {
-              
+                        return (player.points.div(this.goal())).toNumber()
                   }
                 },
                 display() {
@@ -63,7 +63,11 @@ addLayer("q", {
                       player[this.layer].goals[1] = player[this.layer].goals[1].add(1)
                       player[this.layer].points = player[this.layer].points.add(1)
                     }
-                    return (player.s.power.add(1).log(10).div(this.goal().log10())).toNumber()
+                  if (this.goal().log10().gt(9)) {
+                        return (player.s.power.add(1).log(10).div(this.goal().log10())).toNumber()
+                  } else {
+                        return (player.s.power.div(this.goal())).toNumber()
+                  }
                 },
                 display() {
                     return "Next quark at \n"+format(player.s.power) + " / "+format(this.goal())+" singularity power"

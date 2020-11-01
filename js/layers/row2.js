@@ -30,6 +30,7 @@ addLayer("s", {
         effect() {
           let eff = Decimal.pow(1.5, player[this.layer].points).sub(1)
           if (hasUpgrade(this.layer, 12)) eff = eff.mul(upgradeEffect(this.layer, 12))
+          if (hasUpgrade(this.layer, 21)) eff = eff.mul(upgradeEffect(this.layer, 21))
           if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 12))
           return eff
         },
@@ -40,7 +41,7 @@ addLayer("s", {
         singularityPowerBoost() {
           let base = player[this.layer].power.add(1)
           
-          let eff = Decimal.pow(base, 0.1)
+          let eff = Decimal.pow(base, 0.25)
           
           return eff
         },
@@ -53,7 +54,7 @@ addLayer("s", {
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
         upgrades: {
-            rows: 1,
+            rows: 2,
             cols: 3,
             11: {
                 description: "Incrementali boost is 2% more effective.",
@@ -83,6 +84,32 @@ addLayer("s", {
                 currencyLocation() {return player[this.layer]}, // The object in player data that the currency is contained in
                 currencyInternalName: "power", // Use if using a nonstandard currency
                 unlocked() { return hasUpgrade(this.layer, 12)},
+            },
+            21: {
+                description: "Singularity power gain is multiplied by singularity power.",
+                cost: new Decimal(10000),
+                currencyDisplayName: "singularity power", // Use if using a nonstandard currency
+                currencyLocation() {return player[this.layer]}, // The object in player data that the currency is contained in
+                currencyInternalName: "power", // Use if using a nonstandard currency
+                unlocked() { return hasUpgrade(this.layer, 13)},
+                effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+                    let ret = player[this.layer].power.add(1).log10().add(1).sqrt()
+                    return ret;
+                },
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
+            },
+            22: {
+                description: "Prestige point gain is multiplied by singularity power.",
+                cost: new Decimal(90000),
+                currencyDisplayName: "singularity power", // Use if using a nonstandard currency
+                currencyLocation() {return player[this.layer]}, // The object in player data that the currency is contained in
+                currencyInternalName: "power", // Use if using a nonstandard currency
+                unlocked() { return hasUpgrade(this.layer, 21)},
+                effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
+                    let ret = player[this.layer].power.add(1).log10().add(1)
+                    return ret;
+                },
+                effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
             },
         },
         update(diff) {
