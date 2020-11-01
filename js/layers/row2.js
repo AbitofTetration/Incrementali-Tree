@@ -29,6 +29,8 @@ addLayer("s", {
         base: 8,
         effect() {
           let eff = Decimal.pow(1.5, player[this.layer].points).sub(1)
+          if (hasUpgrade(this.layer, 12)) eff = eff.mul(upgradeEffect(this.layer, 12))
+          if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 12))
           return eff
         },
         effectDescription() {
@@ -38,8 +40,11 @@ addLayer("s", {
         singularityPowerBoost() {
           let base = player[this.layer].power
           
+          if (base.gte(1e5)) {
+            base = base.log10().mul(2e4).log10().mul(2e4)
+          }
+          
           let eff = Decimal.pow(1.25, base.sqrt())
-          if (hasUpgrade(this.layer, 12)) eff = eff.mul(upgradeEffect(this.layer, 12))
           
           return eff
         },
