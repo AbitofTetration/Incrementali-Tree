@@ -78,7 +78,7 @@ addLayer("q", {
                 resetBuyables(this.layer)
                 doReset(this.layer, true) // Force a reset
             },
-            respecText: "Respec Thingies", // Text on Respec button, optional
+            respecText: "Respec Runes", // Text on Respec button, optional
             11: {
                 title: "Increment Rune", // Optional, displayed at the top in a larger font
                 cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
@@ -116,7 +116,7 @@ addLayer("q", {
                     return cost.floor()
                 },
                 effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
-                    let eff = Decimal.div(x, 3).add(1).pow(3)
+                    let eff = Decimal.div(x, 3).add(1).pow(5)
                     return eff;
                 },
                 display() { // Everything else displayed in the buyable button after the title

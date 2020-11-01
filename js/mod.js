@@ -39,13 +39,19 @@ function getIncrementaliEff() {
   return eff
 }
 
+function getIncrementaliSelfBoost() {
+  let boost = player.points.add(3).log10().add(1).pow(getIncrementaliEff()).sub(1)
+  if (boost.gt(1e6)) boost = boost.sqrt().mul(1e3)
+  return boost
+}
+
 // Calculate points/sec!
 function getPointGen() {
 	if(!canGenPoints())
 		return new Decimal(0)
 
 	let gain = new Decimal(0.01)
-  gain = gain.mul(player.points.add(3).log10().add(1).pow(getIncrementaliEff()).sub(1))
+  gain = gain.mul(getIncrementaliSelfBoost())
   if (hasUpgrade("p", 13)) gain = gain.mul(2)
   if (hasUpgrade("p", 21)) gain = gain.mul(upgradeEffect("p", 21))
   if (hasUpgrade("p", 22)) gain = gain.mul(3)
@@ -60,8 +66,8 @@ function addedPlayerData() { return {
 
 // Display extra things at the top of the page
 var displayThings = [
-  function() {return `Incrementali self-boost is ${format(player.points.add(3).log10().add(1).pow(getIncrementaliEff()).sub(1))}x`},
-  function() {return `Self-boost formula is log10(incrementali+3)^${format(getIncrementaliEff())}`}
+  function() {return `Incrementali self-boost is ${format(getIncrementaliSelfBoost())}x`},
+  function() {return `Self-boost base formula is log10(incrementali+3)^${format(getIncrementaliEff())}`}
 ]
 
 // Determines when the game "ends"

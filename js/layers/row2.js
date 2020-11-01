@@ -38,13 +38,9 @@ addLayer("s", {
           return "giving "+format(eff)+" singularity power per second"
         },
         singularityPowerBoost() {
-          let base = player[this.layer].power
+          let base = player[this.layer].power.add(1)
           
-          if (base.gte(1e5)) {
-            base = base.log10().mul(2e4).log10().mul(2e4)
-          }
-          
-          let eff = Decimal.pow(1.25, base.sqrt())
+          let eff = Decimal.pow(base, 0.1)
           
           return eff
         },
