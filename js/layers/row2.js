@@ -20,13 +20,13 @@ addLayer("s", {
           power: new Decimal(0)
         }},
         color: "#888888",
-        requires: new Decimal(2500), // Can be a function that takes requirement increases into account
+        requires: new Decimal(500), // Can be a function that takes requirement increases into account
         resource: "singularity levels", // Name of prestige currency
         baseResource: "prestige points", // Name of resource prestige is based on
         baseAmount() {return player.p.points}, // Get the current amount of baseResource
         type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
-        exponent: 1, // Prestige currency exponent
-        base: 2.50,
+        exponent: 1.125, // Prestige currency exponent
+        base: 8,
         effect() {
           let eff = Decimal.pow(1.5, player[this.layer].points).sub(1)
           return eff
@@ -56,7 +56,7 @@ addLayer("s", {
             cols: 2,
             11: {
                 description: "Incrementali boost is 2% more effective.",
-                cost: new Decimal(75),
+                cost: new Decimal(5),
                 currencyDisplayName: "singularity power", // Use if using a nonstandard currency
                 currencyLocation() {return player[this.layer]}, // The object in player data that the currency is contained in
                 currencyInternalName: "power", // Use if using a nonstandard currency
@@ -64,7 +64,7 @@ addLayer("s", {
             },
             12: {
                 description: "Singularity power gain is multiplied by incrementali.",
-                cost: new Decimal(250),
+                cost: new Decimal(75),
                 currencyDisplayName: "singularity power", // Use if using a nonstandard currency
                 currencyLocation() {return player[this.layer]}, // The object in player data that the currency is contained in
                 currencyInternalName: "power", // Use if using a nonstandard currency
@@ -85,6 +85,6 @@ addLayer("s", {
         midsection: [
             ["display-text", function() {return "You have "+format(player.s.power)+" singularity power, multiplying incrementy gain by "+format(layers.s.singularityPowerBoost())+"x"}],
         ],
-        layerShown(){return player.p.points.gt(100) || player.s.unlocked},
+        layerShown(){return player.p.points.gt(45) || player.s.unlocked},
         branches: ["p"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
 })

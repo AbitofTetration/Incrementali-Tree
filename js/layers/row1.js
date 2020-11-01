@@ -44,7 +44,7 @@ addLayer("p", {
                 cost: new Decimal(1),
                 unlocked() { return hasUpgrade(this.layer, 13)},
                 effect() { // Calculate bonuses from the upgrade. Can return a single value or an object with multiple values
-                    let ret = player[this.layer].points.add(1).log10().add(1)
+                    let ret = player[this.layer].points.add(2).log10().add(1)
                     if (hasUpgrade(this.layer, 31)) ret = ret.pow(1.3)
                     if (hasUpgrade(this.layer, 33)) ret = ret.pow(1.6)
                     return ret;

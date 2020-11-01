@@ -31,11 +31,11 @@ addLayer("q", {
                     return Decimal.pow(5, player[this.layer].goals[0].pow(1.25).add(1))
                 },
                 progress() {
-                    if (player.points.log(10).div(this.goal().log10()).gt(1)) {
+                    if (player.points.add(1).log(10).div(this.goal().log10()).gt(1)) {
                       player[this.layer].goals[0] = player[this.layer].goals[0].add(1)
                       player[this.layer].points = player[this.layer].points.add(1)
                     }
-                    return (player.points.log(10).div(this.goal().log10())).toNumber()
+                    return (player.points.add(1).log(10).div(this.goal().log10())).toNumber()
                 },
                 display() {
                     return "Next quark at \n"+format(player.points) + " / "+format(this.goal())+" incrementali"
@@ -55,11 +55,11 @@ addLayer("q", {
                     return Decimal.pow(2.5, player[this.layer].goals[1].pow(1.125).add(1))
                 },
                 progress() {
-                    if (player.s.power.log(10).div(this.goal().log10()).gt(1)) {
+                    if (player.s.power.add(1).log(10).div(this.goal().log10()).gt(1)) {
                       player[this.layer].goals[1] = player[this.layer].goals[1].add(1)
                       player[this.layer].points = player[this.layer].points.add(1)
                     }
-                    return (player.s.power.log(10).div(this.goal().log10())).toNumber()
+                    return (player.s.power.add(1).log(10).div(this.goal().log10())).toNumber()
                 },
                 display() {
                     return "Next quark at \n"+format(player.s.power) + " / "+format(this.goal())+" singularity power"
