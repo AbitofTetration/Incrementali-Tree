@@ -1,3 +1,12 @@
+function getTickSpeed(tier) {
+  let q = new Decimal(1)
+  switch(tier) {
+    case 1:
+      break;
+  }
+  return q
+}
+
 addLayer("q", {
         name: "quark", // This is optional, only used in a few places, If absent it just uses the layer id.
         symbol: "Q", // This appears on the layer's node. Default is the id with the first letter capitalized

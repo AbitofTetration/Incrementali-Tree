@@ -1,15 +1,3 @@
-function scaleStaticCost(gain, row) {
-	if (gain.gte(1225)) gain = gain.pow(10).div(Decimal.pow(1225, 9));
-	if (gain.gte(12) && row<4) gain = gain.pow(2).div(12);
-	return gain;
-}
-
-function softcapStaticGain(gain, row) {
-	if (gain.gte(12) && row<4) gain = gain.times(12).sqrt();
-	if (gain.gte(1225)) gain = gain.times(Decimal.pow(1225, 9)).root(10);
-	return gain;
-}
-
 addLayer("s", {
         name: "singularity", // This is optional, only used in a few places, If absent it just uses the layer id.
         symbol: "S", // This appears on the layer's node. Default is the id with the first letter capitalized
@@ -50,12 +38,14 @@ addLayer("s", {
             mult = new Decimal(1)
             if (player[this.layer].points.gt(26)) mult = mult.div(100)
             if (player[this.layer].points.gt(30)) mult = mult.div(100)
+            if (player[this.layer].points.gt(33)) mult = mult.div(1e8)
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
             let exp = new Decimal(1)
             if (player[this.layer].points.gt(26)) exp = exp.div(1.25)
             if (player[this.layer].points.gt(30)) exp = exp.div(1.25)
+            if (player[this.layer].points.gt(33)) exp = exp.div(1.5)
             return exp
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
