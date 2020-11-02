@@ -50,7 +50,7 @@ addLayer("p", {
                 unlocked() { return hasUpgrade(this.layer, 11)},
             },
             13: {
-                description: "Double incrementy gain.",
+                description: "Double incrementali gain.",
                 cost: new Decimal(1),
                 unlocked() { return hasUpgrade(this.layer, 12)},
             },
@@ -67,7 +67,7 @@ addLayer("p", {
                 effectDisplay() { return format(this.effect())+"x" }, // Add formatting to the effect
             },
             22: {
-                description: "Triple incrementy gain.",
+                description: "Triple incrementali gain.",
                 cost: new Decimal(2),
                 unlocked() { return hasUpgrade(this.layer, 21)},
             },
@@ -82,7 +82,7 @@ addLayer("p", {
                 unlocked() { return hasUpgrade(this.layer, 23)},
             },
             32: {
-                description: "Quadruple incrementy gain.",
+                description: "Quadruple incrementali gain.",
                 cost: new Decimal(22),
                 unlocked() { return hasUpgrade(this.layer, 31)},
             },

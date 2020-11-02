@@ -126,7 +126,7 @@ addLayer("s", {
             {key: "s", description: "S: Reset for singularity levels", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
         ],
         midsection: [
-            ["display-text", function() {return "You have "+format(player.s.power)+" singularity power, multiplying incrementy gain by "+format(layers.s.singularityPowerBoost())+"x"}],
+            ["display-text", function() {return "You have "+format(player.s.power)+" singularity power, multiplying incrementali gain by "+format(layers.s.singularityPowerBoost())+"x"}],
         ],
         layerShown(){return player.p.points.gt(45) || player.s.unlocked},
         branches: ["p"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
