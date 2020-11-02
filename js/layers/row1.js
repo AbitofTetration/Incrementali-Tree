@@ -31,7 +31,6 @@ addLayer("p", {
                 } else {
                   layerDataReset(this.layer) // This is actually the default behavior
                 }
-                return
               }
               if (resettingLayer = "i") {
                 if (hasMilestone(resettingLayer, 0)) {
@@ -39,10 +38,9 @@ addLayer("p", {
                 } else {
                   layerDataReset(this.layer) // This is actually the default behavior
                 }
-                return
               }
-              layerDataReset(this.layer) // This is actually the default behavior
             }
+            return
         },
         upgrades: {
             rows: 3,
