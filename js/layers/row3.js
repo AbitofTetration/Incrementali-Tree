@@ -309,6 +309,6 @@ addLayer("c", {
         hotkeys: [
             {key: "c", description: "C: Reset for cultists", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
         ],
-        layerShown(){return challengeCompletions("e", 12) > 1 || player.i.unlocked},
+        layerShown(){return challengeCompletions("e", 12) > 0 || player.i.unlocked},
         branches: ["sh", "e"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
 })
