@@ -523,7 +523,7 @@ addLayer("sh", {
                 style: {'height':'125px','width':'125px'},
             },
         },
-        layerShown(){return challengeCompletions("e", 12) > 1},
+        layerShown(){return challengeCompletions("e", 11) > 0},
         branches: ["e"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
         tabFormat: [
                                 "main-display",
