@@ -10,17 +10,21 @@ addLayer("s", {
         color: "#888888",
         requires: new Decimal(500), // Can be a function that takes requirement increases into account
         resource: "singularity levels", // Name of prestige currency
-        baseResource: "prestige points", // Name of resource prestige is based on
+        baseResource: "research points", // Name of resource prestige is based on
         baseAmount() {return player.p.points}, // Get the current amount of baseResource
         type: "static", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
         exponent: 0.85, // Prestige currency exponent
         base: 3,
         effect() {
-          let eff = Decimal.pow(1.5, player[this.layer].points).sub(1)
+          let base = player[this.layer].points
+          if (hasUpgrade("t", 22)) base = base.mul(1.05)
+          let eff = Decimal.pow(1.5, base).sub(1)
           if (hasUpgrade(this.layer, 12)) eff = eff.mul(upgradeEffect(this.layer, 12))
           if (hasUpgrade(this.layer, 21)) eff = eff.mul(upgradeEffect(this.layer, 21))
           if (player.q.unlocked) eff = eff.mul(buyableEffect("q", 12))
           if(eff.gt(1e7)) eff = eff.sqrt().mul(Decimal.sqrt(1e7))
+          if (hasChallenge("e", 12)) eff = eff.mul(layers.e.challenges[12].rewardEffect())
+          if (!inChallenge("e", 12) && player.sh.unlocked) mult = mult.mul(buyableEffect("sh", 31))
           return eff
         },
         effectDescription() {
@@ -59,6 +63,20 @@ addLayer("s", {
                 done() {return player[this.layer].points.gte(19)}, // Used to determine when to give the milestone
                 effectDescription: "You gain 10% of prestige points on reset per second.",
             },
+        },
+        doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
+            if(layers[resettingLayer].row > this.row) {
+              if (resettingLayer == "t" || resettingLayer == "e" || resettingLayer == "c") {
+                if (hasMilestone("t", 2)) {
+                  layerDataReset(this.layer, ["upgrades", "points"])
+                } else if (hasMilestone("t", 0)) {
+                  layerDataReset(this.layer, ["upgrades"])
+                } else {
+                  layerDataReset(this.layer) // This is actually the default behavior
+                }
+              }
+            }
+            return
         },
         upgrades: {
             rows: 2,
@@ -126,9 +144,9 @@ addLayer("s", {
             {key: "s", description: "S: Reset for singularity levels", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
         ],
         midsection: [
-            ["display-text", function() {return "You have "+format(player.s.power)+" singularity power, multiplying incrementy gain by "+format(layers.s.singularityPowerBoost())+"x"}],
+            ["display-text", function() {return "You have "+format(player.s.power)+" singularity power, multiplying incrementali gain by "+format(layers.s.singularityPowerBoost())+"x"}],
         ],
-        layerShown(){return player.p.points.gt(45) || player.s.unlocked},
+        layerShown(){return player.p.best.gt(45) || player.s.unlocked},
         branches: ["p"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
 })
 
@@ -149,9 +167,11 @@ addLayer("i", {
         exponent: 0.75, // Prestige currency exponent
         base: 10,
         effect() {
+          let base = player[this.layer].points
+          if (hasUpgrade("t", 21)) base = base.mul(1.05)
           let eff = {
-            incrementMult: new Decimal.pow(5, player[this.layer].points.sqrt()),
-            incrementBuff: new Decimal.pow(1.05, player[this.layer].points.sqrt())
+            incrementMult: new Decimal.pow(5, base.sqrt()),
+            incrementBuff: new Decimal.pow(1.05, base.sqrt())
           }
             let set = {
               incrementMult: new Decimal(25),
@@ -170,14 +190,32 @@ addLayer("i", {
         },
         gainMult() { // Calculate the multiplier for main currency from bonuses
             mult = new Decimal(1)
+            if (player[this.layer].points.gt(103)) mult = mult.div(1e25)
+            if (player.sh.unlocked) mult = mult.div(buyableEffect("sh", 33))
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
-            return new Decimal(1)
+            let exp = new Decimal(1)
+            if (player[this.layer].points.gt(103)) exp = exp.div(1.75)
+            return exp
+        },
+        doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
+            if(layers[resettingLayer].row > this.row) {
+              if (resettingLayer == "t" || resettingLayer == "e" || resettingLayer == "c") {
+                if (hasMilestone("t", 2)) {
+                  layerDataReset(this.layer, ["buyables", "points"])
+                } else if (hasMilestone("t", 0)) {
+                  layerDataReset(this.layer, ["buyables"])
+                } else {
+                  layerDataReset(this.layer) // This is actually the default behavior
+                }
+              }
+            }
+            return
         },
         buyables: {
             rows: 1,
-            cols: 12,
+            cols: 3,
             showRespec: true,
             respec() { // Optional, reset things and give back your currency. Having this function makes a respec button appear
                 resetBuyables(this.layer)
@@ -253,6 +291,244 @@ addLayer("i", {
         hotkeys: [
             {key: "i", description: "I: Reset for incrementali galaxies", onPress(){if (canReset(this.layer)) doReset(this.layer)}},
         ],
-        layerShown(){return player.s.points.gt(6) || player.i.unlocked},
+        layerShown(){return player.s.points.gte(6) || player.i.unlocked},
         branches: ["p"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
+})
+
+addLayer("sh", {
+        name: "shrine", // This is optional, only used in a few places, If absent it just uses the layer id.
+        symbol: "Sh", // This appears on the layer's node. Default is the id with the first letter capitalized
+        position: 2, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+        startData() { return {
+          unlocked: false,
+			    points: new Decimal(0),
+        }},
+        color: "#dcbfaa",
+        requires: new Decimal(0), // Can be a function that takes requirement increases into account
+        baseAmount() {return player.points}, // Get the current amount of baseResource
+        resource: "offerings", // Name of prestige currency
+        type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+        getGain() {
+          let gain = player.points.add(1).log10().add(1).log10().add(1).log10()
+          if (!inChallenge("e", 12) && player.sh.unlocked) gain = gain.mul(buyableEffect("sh", 11))
+          if (hasChallenge("e", 11)) gain = gain.mul(layers.e.challenges[11].rewardEffect())
+          return gain
+        },
+        gainMult() { // Calculate the multiplier for main currency from bonuses
+            mult = new Decimal(1)
+            return mult
+        },
+        gainExp() { // Calculate the exponent on main currency from bonuses
+            let exp = new Decimal(1)
+            return exp
+        },
+        row: 1, // Row the layer is in on the tree (0 is the first row)
+        doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
+            if(layers[resettingLayer].row > this.row) {
+              if (resettingLayer == "t" || resettingLayer == "e" || resettingLayer == "c") {
+                layerDataReset(this.layer, ["buyables"])
+              }
+            }
+            return
+        },
+        update(diff) {
+          if (player.sh.unlocked) player[this.layer].points = player[this.layer].points.add(layers.sh.getGain().mul(diff))
+        },
+        getShrinePower() {
+          let eff = new Decimal(1)
+          if (player.c.unlocked) eff = eff.mul(buyableEffect("c", 13).second)
+          return eff
+        },
+        buyables: {
+            rows: 3,
+            cols: 3,
+            11: {
+                title: "Zeus", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gt(10)) x = x.pow(2).div(10)
+                    let cost = Decimal.pow(10, x.sqrt()).mul(1)
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    x = x.mul(layers.sh.getShrinePower())
+                    let eff = Decimal.pow(1.5, x)
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " offerings\n\
+                    Level: " + player[this.layer].buyables[this.id] + "\n\
+                    Multiplies offering gain by " + format(data.effect) + "x"
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'125px','width':'125px'},
+            },
+            21: {
+                title: "Midas", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gt(10)) x = x.pow(2).div(10)
+                    let cost = Decimal.pow(10, x.sqrt()).mul(5)
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    x = x.mul(layers.sh.getShrinePower())
+                    let eff = Decimal.pow(8, x.sqrt())
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " offerings\n\
+                    Level: " + player[this.layer].buyables[this.id] + "\n\
+                    Multiplies research point gain by " + format(data.effect) + "x"
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'125px','width':'125px'},
+            },
+            22: {
+                title: "Persephone", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gt(10)) x = x.pow(2).div(10)
+                    let cost = Decimal.pow(10, x.sqrt()).mul(5)
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    x = x.mul(layers.sh.getShrinePower())
+                    let eff = Decimal.pow(25, x.sqrt())
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " offerings\n\
+                    Level: " + player[this.layer].buyables[this.id] + "\n\
+                    Multiplies incrementali gain by " + format(data.effect) + "x"
+                },
+                unlocked() { return player[this.layer].unlocked }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'125px','width':'125px'},
+            },
+            31: {
+                title: "Coeus", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gt(10)) x = x.pow(2).div(10)
+                    let cost = Decimal.pow(10, x.sqrt()).mul(100)
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    x = x.mul(layers.sh.getShrinePower())
+                    let eff = Decimal.pow(12, x.sqrt())
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " offerings\n\
+                    Level: " + player[this.layer].buyables[this.id] + "\n\
+                    Multiplies singularity power gain by " + format(data.effect) + "x"
+                },
+                unlocked() { return layers.c.buyables[13].effect().first.gte(1) }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'125px','width':'125px'},
+            },
+            32: {
+                title: "Psyche", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gt(10)) x = x.pow(2).div(10)
+                    let cost = Decimal.pow(10, x.sqrt()).mul(100)
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    x = x.mul(layers.sh.getShrinePower())
+                    let eff = Decimal.mul(0.03, x).add(1)
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " offerings\n\
+                    Level: " + player[this.layer].buyables[this.id] + "\n\
+                    Incrementali self-boost is increased by " + format(data.effect.sub(1).mul(100), 0) + "%"
+                },
+                unlocked() { return layers.c.buyables[13].effect().first.gte(2) }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'125px','width':'125px'},
+            },
+            33: {
+                title: "Aether", // Optional, displayed at the top in a larger font
+                cost(x=player[this.layer].buyables[this.id]) { // cost for buying xth buyable, can be an object if there are multiple currencies
+                    if (x.gt(10)) x = x.pow(2).div(10)
+                    let cost = Decimal.pow(10, x.sqrt()).mul(100)
+                    return cost.floor()
+                },
+                effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    x = x.mul(layers.sh.getShrinePower())
+                    let eff = Decimal.mul(0.1, x).add(1)
+                    return eff;
+                },
+                display() { // Everything else displayed in the buyable button after the title
+                    let data = tmp[this.layer].buyables[this.id]
+                    return "Cost: " + format(data.cost) + " offerings\n\
+                    Level: " + player[this.layer].buyables[this.id] + "\n\
+                    Get " + format(data.effect.sub(1).mul(100), 0) + "% more galaxies"
+                },
+                unlocked() { return layers.c.buyables[13].effect().first.gte(3) }, 
+                canAfford() {
+                    return player[this.layer].points.gte(tmp[this.layer].buyables[this.id].cost)},
+                buy() { 
+                    cost = tmp[this.layer].buyables[this.id].cost
+                    player[this.layer].points = player[this.layer].points.sub(cost)	
+                    player[this.layer].buyables[this.id] = player[this.layer].buyables[this.id].add(1)
+                    player[this.layer].spentOnBuyables = player[this.layer].spentOnBuyables.add(cost) // This is a built-in system that you can use for respeccing but it only works with a single Decimal value
+                },
+                buyMax() {}, // You'll have to handle this yourself if you want
+                style: {'height':'125px','width':'125px'},
+            },
+        },
+        layerShown(){return challengeCompletions("e", 12) > 1},
+        branches: ["e"], // When this layer appears, a branch will appear from this layer to any layers here. Each entry can be a pair consisting of a layer id and a color.
+        tabFormat: [
+                                "main-display",
+                                ["display-text", function() {return "You are getting "+format(layers.sh.getGain())+" offerings per second from your incrementali." }],
+                                "blank",
+                                "buyables",
+                        ],
 })

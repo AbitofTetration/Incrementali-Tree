@@ -420,6 +420,10 @@ function challengeCompletions(layer, id){
 	return (player[layer].challenges[id])
 }
 
+function fullyCompletedChallenges(layer, id) {
+  return (challengeCompletions(layer, id) == (tmp[layer].challenges[id].completionLimit))
+}
+
 function getBuyableAmount(layer, id){
 	return (player[layer].buyables[id])
 }
