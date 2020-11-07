@@ -160,3 +160,43 @@ addLayer("q", {
         ["bar", "pointsBar"], ["bar", "singularityBar"]
     ],
 })
+
+addLayer("stat", {
+        name: "Statistics", // This is optional, only used in a few places, If absent it just uses the layer id.
+        symbol: "S", // This appears on the layer's node. Default is the id with the first letter capitalized
+        position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
+        startData() { return {
+            unlocked: true,
+	      		points: new Decimal(0),
+        }},
+        tooltip() {
+          return "Statistics"
+        },
+        color: "#FFFFFF",
+        requires: new Decimal(0.25), // Can be a function that takes requirement increases into account
+        resource: "quarks", // Name of prestige currency
+        type: "none", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
+        exponent: 0.5, // Prestige currency exponent
+        row: "side", // Row the layer is in on the tree (0 is the first row)
+        layerShown(){return true},
+        tabFormat: [
+              "blank",
+              ["display-text", function() {return "You have "+format(player.points)+" incrementali."}],
+              "blank", "blank",
+              ["display-text", function() {return "You have "+format(player.p.points)+" research points."}],
+              "blank", "blank",
+              ["display-text", function() {if (player.s.unlocked) return "You have "+format(player.s.points)+" singularity levels."}],
+              ["display-text", function() {if (player.s.unlocked) return "You have "+format(player.s.power)+" singularity power."}],
+              "blank",
+              ["display-text", function() {if (player.i.unlocked) return "You have "+format(player.i.points)+" incrementali galaxies."}],
+              "blank",
+              ["display-text", function() {if (player.sh.unlocked) return "You have "+format(player.sh.points)+" offerings."}],
+              ["display-text", function() {if (player.sh.unlocked) return "You have "+format(layers.sh.getTotalBuyables())+" total shrine levels."}],
+              "blank", "blank",
+              ["display-text", function() {if (player.t.unlocked) return "You have "+format(player.t.points)+" wormholes."}],
+              "blank",
+              ["display-text", function() {if (player.e.unlocked) return "You have "+format(challengeCompletions("e", 11)+challengeCompletions("e", 12))+" total environment completions."}],
+              "blank",
+              ["display-text", function() {if (player.c.unlocked) return "You have "+format(player.c.points)+" followers."}],
+        ],
+})
