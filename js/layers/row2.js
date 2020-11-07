@@ -43,6 +43,7 @@ addLayer("s", {
             if (player[this.layer].points.gt(26)) mult = mult.div(100)
             if (player[this.layer].points.gt(30)) mult = mult.div(100)
             if (player[this.layer].points.gt(33)) mult = mult.div(1e8)
+            if (player[this.layer].points.gt(84)) mult = mult.div(1e98)
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
@@ -50,6 +51,7 @@ addLayer("s", {
             if (player[this.layer].points.gt(26)) exp = exp.div(1.25)
             if (player[this.layer].points.gt(30)) exp = exp.div(1.25)
             if (player[this.layer].points.gt(33)) exp = exp.div(1.5)
+            if (player[this.layer].points.gt(84)) exp = exp.div(3)
             return exp
         },
         row: 1, // Row the layer is in on the tree (0 is the first row)
@@ -177,9 +179,18 @@ addLayer("i", {
               incrementMult: new Decimal(25),
               incrementBuff: new Decimal(1.1),
             }
+            let set2 = {
+              incrementMult: new Decimal(4e4),
+              incrementBuff: new Decimal(1.4),
+            }
           for (var i in eff) {
             if (eff[i].gt(set[i])) {
               eff[i] = eff[i].sqrt().mul(set[i].sqrt())
+            }
+          }
+          for (var i in eff) {
+            if (eff[i].gt(set2[i])) {
+              eff[i] = eff[i].cbrt().mul(set2[i].pow(2/3))
             }
           }
           return eff
@@ -191,12 +202,14 @@ addLayer("i", {
         gainMult() { // Calculate the multiplier for main currency from bonuses
             mult = new Decimal(1)
             if (player[this.layer].points.gt(103)) mult = mult.div(1e25)
+            if (player[this.layer].points.gt(103)) mult = mult.div(1e50)
             if (player.sh.unlocked) mult = mult.div(buyableEffect("sh", 33))
             return mult
         },
         gainExp() { // Calculate the exponent on main currency from bonuses
             let exp = new Decimal(1)
             if (player[this.layer].points.gt(103)) exp = exp.div(1.75)
+            if (player[this.layer].points.gt(134)) exp = exp.div(1.75)
             return exp
         },
         doReset(resettingLayer){ // Triggers when this layer is being reset, along with the layer doing the resetting. Not triggered by lower layers resetting, but is by layers on the same row.
@@ -339,6 +352,14 @@ addLayer("sh", {
           if (player.c.unlocked) eff = eff.mul(buyableEffect("c", 13).second)
           return eff
         },
+        getTotalBuyables() {
+          let set = [11, 21, 22, 31, 32, 33]
+          let total = new Decimal(0)
+          for (var i in set) {
+            total = total.add(player.sh.buyables[set[i]])
+          }
+          return total
+        },
         buyables: {
             rows: 3,
             cols: 3,
@@ -350,6 +371,7 @@ addLayer("sh", {
                     return cost.floor()
                 },
                 effect(x=player[this.layer].buyables[this.id]) { // Effects of owning x of the items, x is a decimal
+                    if (x.gt(20)) x = x.sqrt().mul(Decimal.sqrt(20))
                     x = x.mul(layers.sh.getShrinePower())
                     let eff = Decimal.pow(1.5, x)
                     return eff;
